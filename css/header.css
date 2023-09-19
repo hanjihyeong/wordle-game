@@ -1,0 +1,23 @@
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #d3d6da;
+  padding-bottom: 20px;
+}
+
+.header-title {
+  text-align: center;
+  flex-grow: 1;
+  font-size: 50px;
+  font-weight: bold;
+}
+
+.header-column {
+  display: flex;
+}
+
+.header-icon img {
+  width: 40px;
+  height: 40px;
+}
