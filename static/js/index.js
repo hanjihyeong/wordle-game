@@ -1,5 +1,3 @@
-const 정답 = "APPLE";
-
 let attempts = 0;
 let index = 0;
 let timer;
@@ -9,7 +7,7 @@ function appStart() {
     const div = document.createElement("div");
     div.innerText = "게임이 종료됐습니다.";
     div.style =
-      "display:flex; justify-content:center; align-items:center; position:absolute; top:40vh; left:45vw; background-color:white; width:200px; height:100px";
+      "display:flex; justify-content:center; align-items:center; position:absolute; top:40vh; left:45vw; background-color:white; width:200px; height:100px;";
     document.body.appendChild(div);
   };
 
@@ -25,19 +23,34 @@ function appStart() {
     index = 0;
   };
 
-  const handleEnterKey = () => {
+  const handleEnterKey = async () => {
     let 맞은_갯수 = 0;
+    const 응답 = await fetch("/answer");
+    const 정답_객체 = await 응답.json();
+    const 정답 = 정답_객체;
+
     for (let i = 0; i < 5; i++) {
       const block = document.querySelector(
         `.board-block[data-index='${attempts}${i}']`
       );
       const 입력한_글자 = block.innerText;
       const 정답_글자 = 정답[i];
+
+      const keyboardButton = document.querySelector(
+        `.keyboard-column[data-key='${입력한_글자}']`
+      );
+
       if (입력한_글자 === 정답_글자) {
         맞은_갯수 += 1;
         block.style.background = "#6AAA64";
-      } else if (정답.includes(입력한_글자)) block.style.background = "#C9B458";
-      else block.style.background = "#787C7E";
+        keyboardButton.style.backgroundColor = "#6AAA64";
+      } else if (정답.includes(입력한_글자)) {
+        block.style.background = "#C9B458";
+        keyboardButton.style.backgroundColor = "#C9B458";
+      } else {
+        block.style.background = "#787C7E";
+        keyboardButton.style.backgroundColor = "#787C7E";
+      }
       block.style.color = "white";
     }
 
@@ -53,6 +66,24 @@ function appStart() {
       preBlock.innerText = "";
     }
     if (index !== 0) index -= 1;
+  };
+
+  const handleKeyInput = (key) => {
+    const thisBlock = document.querySelector(
+      `.board-block[data-index='${attempts}${index}']`
+    );
+
+    if (index === 5) {
+      if (key === "Enter") {
+        handleEnterKey();
+      } else if (key === "BACK") {
+        handleBackspace();
+      }
+      return;
+    } else if (/^[A-Z]$/.test(key)) {
+      thisBlock.innerText = key;
+      index += 1;
+    }
   };
 
   const handlekeydown = (event) => {
@@ -88,6 +119,24 @@ function appStart() {
 
   startTimer();
   window.addEventListener("keydown", handlekeydown);
+  document.querySelectorAll(".keyboard-column").forEach((keyboardButton) => {
+    keyboardButton.addEventListener("click", () => {
+      const key = keyboardButton.getAttribute("data-key");
+      handleKeyInput(key);
+    });
+  });
+
+  document
+    .querySelector(".keyboard-column-wide[data-key='BACK']")
+    .addEventListener("click", () => {
+      handleKeyInput("BACK");
+    });
+
+  document
+    .querySelector(".keyboard-column-wide[data-key='ENTER']")
+    .addEventListener("click", () => {
+      handleKeyInput("Enter");
+    });
 }
 
 appStart();
